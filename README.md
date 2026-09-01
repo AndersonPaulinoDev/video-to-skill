@@ -34,18 +34,7 @@ The result is structured knowledge an agent can use repeatedly—not a transcrip
 
 ## How It Works
 
-```mermaid
-flowchart TD
-    A["Video file or public URL"] --> B["Inspect and extract"]
-    B --> C["Speech, frames, OCR, metadata"]
-    C --> D["Organize claims and procedures"]
-    D --> E["Research authoritative sources"]
-    E --> F["Flag updates and conflicts"]
-    F --> G["Generate and validate skill"]
-    G --> H{"User approval"}
-    H -->|Approved| I["Install or publish"]
-    H -->|Changes requested| D
-```
+<img src="assets/workflow.svg" alt="Video to Skill workflow: ingest, extract, verify, generate, approve, and install" width="100%">
 
 The deterministic pipeline handles media extraction and provenance. The agent workflow interprets evidence, asks focused questions, performs research, generates the candidate skill, and presents a plain-language preview before installation.
 

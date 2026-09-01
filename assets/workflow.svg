@@ -1,0 +1,65 @@
+<svg width="1200" height="560" viewBox="0 0 1200 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070A0E"/>
+      <stop offset="1" stop-color="#07151B"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#00CFE8"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="560" rx="24" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1198" height="558" rx="23" stroke="#00E5FF" stroke-opacity="0.22"/>
+  <text x="70" y="72" fill="#F2FBFC" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">From video to approved agent skill</text>
+  <text x="70" y="105" fill="#78909A" font-family="Inter, Arial, sans-serif" font-size="16">Every stage preserves source evidence and provenance.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <g transform="translate(70 150)">
+      <rect width="300" height="100" rx="16" fill="#0B151C" stroke="#00E5FF" stroke-opacity="0.55"/>
+      <text x="24" y="39" fill="#00E5FF" font-size="13" font-weight="700" letter-spacing="2">01 · INGEST</text>
+      <text x="24" y="70" fill="#EAF9FA" font-size="18" font-weight="600">Video file or public URL</text>
+    </g>
+    <g transform="translate(450 150)">
+      <rect width="300" height="100" rx="16" fill="#0B151C" stroke="#00E5FF" stroke-opacity="0.55"/>
+      <text x="24" y="39" fill="#00E5FF" font-size="13" font-weight="700" letter-spacing="2">02 · EXTRACT</text>
+      <text x="24" y="68" fill="#EAF9FA" font-size="17" font-weight="600">Speech · frames · OCR</text>
+      <text x="24" y="89" fill="#78909A" font-size="14">Subtitles and metadata</text>
+    </g>
+    <g transform="translate(830 150)">
+      <rect width="300" height="100" rx="16" fill="#0B151C" stroke="#00E5FF" stroke-opacity="0.55"/>
+      <text x="24" y="39" fill="#00E5FF" font-size="13" font-weight="700" letter-spacing="2">03 · VERIFY</text>
+      <text x="24" y="68" fill="#EAF9FA" font-size="17" font-weight="600">Research claims</text>
+      <text x="24" y="89" fill="#78909A" font-size="14">Flag updates and conflicts</text>
+    </g>
+
+    <g transform="translate(830 330)">
+      <rect width="300" height="100" rx="16" fill="#0B151C" stroke="#00E5FF" stroke-opacity="0.55"/>
+      <text x="24" y="39" fill="#00E5FF" font-size="13" font-weight="700" letter-spacing="2">04 · GENERATE</text>
+      <text x="24" y="68" fill="#EAF9FA" font-size="17" font-weight="600">Build and validate skill</text>
+      <text x="24" y="89" fill="#78909A" font-size="14">Create plain-language preview</text>
+    </g>
+    <g transform="translate(450 330)">
+      <rect width="300" height="100" rx="16" fill="#0B151C" stroke="#F0B94A" stroke-opacity="0.7"/>
+      <text x="24" y="39" fill="#F0B94A" font-size="13" font-weight="700" letter-spacing="2">05 · APPROVE</text>
+      <text x="24" y="68" fill="#EAF9FA" font-size="17" font-weight="600">User reviews exact output</text>
+      <text x="24" y="89" fill="#78909A" font-size="14">Changes loop back to generation</text>
+    </g>
+    <g transform="translate(70 330)">
+      <rect width="300" height="100" rx="16" fill="#0A2228" stroke="#00E5FF"/>
+      <text x="24" y="39" fill="#00E5FF" font-size="13" font-weight="700" letter-spacing="2">06 · INSTALL</text>
+      <text x="24" y="68" fill="#EAF9FA" font-size="17" font-weight="600">Publish approved skill</text>
+      <text x="24" y="89" fill="#78909A" font-size="14">No automatic installation</text>
+    </g>
+  </g>
+
+  <g stroke="#00CFE8" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M370 200H438"/>
+    <path d="M750 200H818"/>
+    <path d="M980 250V318"/>
+    <path d="M830 380H762"/>
+    <path d="M450 380H382"/>
+  </g>
+  <path d="M600 330V292H980V318" stroke="#F0B94A" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#arrow)"/>
+  <text x="618" y="283" fill="#F0B94A" font-family="Inter, Arial, sans-serif" font-size="13">changes requested</text>
+  <text x="70" y="500" fill="#55717B" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" letter-spacing="2">SOURCE-GROUNDED  /  CONFLICT-AWARE  /  HUMAN-APPROVED</text>
+</svg>
