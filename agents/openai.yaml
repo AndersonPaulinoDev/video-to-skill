@@ -1,0 +1,14 @@
+interface:
+  display_name: Video to Skill
+  short_description: Turn videos into verified agent skills
+  default_prompt: Use $video-to-skill to convert this video into a structured, verified
+    agent skill.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

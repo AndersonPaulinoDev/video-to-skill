@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/readme-banner.svg" alt="Video to Skill — turn video knowledge into source-grounded agent skills" width="100%">
+
 # Video to Skill
 
 ### Turn any video into reusable agent knowledge.
@@ -120,7 +122,7 @@ Researched claims are labeled `confirmed`, `updated`, `conflicted`, `unverified`
 Clone the repository and create an isolated Python environment:
 
 ```bash
-git clone https://github.com/bnsceo/video-to-skill.git
+git clone https://github.com/AndersonPaulinoDev/video-to-skill.git
 cd video-to-skill
 
 python3 -m venv .venv
@@ -139,7 +141,7 @@ video-to-skill doctor
 For Agent Skills-compatible hosts:
 
 ```bash
-npx skills add bnsceo/video-to-skill
+npx skills add AndersonPaulinoDev/video-to-skill
 ```
 
 You can also place the repository in the skills directory used by your agent host.
