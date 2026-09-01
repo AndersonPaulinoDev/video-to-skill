@@ -1,4 +1,3 @@
 # Architecture
 
-The deterministic half resolves the source, records metadata and hashes, extracts timestamped speech, samples visual evidence, runs optional OCR, and prepares candidate claims. The agent half interprets evidence, asks necessary questions, researches current authoritative sources, records conflicts, generates a progressively disclosed skill, validates it, and presents an approval preview. Installation and publication remain separate gated actions.
-
+The extraction layer resolves the source, records metadata and hashes, extracts timestamped speech, samples visual evidence, runs optional OCR, and prepares candidate claims. The agent supplies evidence-linked `research.json` and `knowledge.json` records after questions and authoritative research. The generation layer validates those records and writes a digest-bound candidate. The lifecycle layer authenticates explicit approval with a protected local HMAC key, confines installation to the selected skills directory, verifies installed contents, and creates publication-safe ZIP packages only from approved candidates.

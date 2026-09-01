@@ -8,5 +8,5 @@ def build_preview(manifest: dict, claims: list[dict], cues: list[dict], frames: 
         "research": {"required": True, "completed": False, "confirmed": 0, "updated": 0,
                      "conflicted": 0, "unverified": 0},
         "unresolved_gaps": manifest.get("unresolved_gaps", []),
-        "next_action": "Agent review, questions, research, candidate generation, validation, then user approval.",
+        "next_action": "Create knowledge.json and research.json, then run the generate command.",
     }

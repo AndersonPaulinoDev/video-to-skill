@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5FF.svg)](LICENSE.md)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-15%20passing-22C55E.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-28%20passing-22C55E.svg)](#verification)
 [![Status](https://img.shields.io/badge/status-early%20development-F59E0B.svg)](#project-status)
 
 </div>
@@ -62,18 +62,13 @@ A finished conversion can produce:
 ```text
 generated-skill/
 ├── SKILL.md
-├── topics/
-├── procedures/
-├── examples/
-├── transcript/
-├── frames/
-├── glossary.md
-├── patterns.md
-├── cheatsheet.md
 ├── sources.md
 ├── claims.md
 ├── inconsistencies.md
-└── generation-report.json
+├── PREVIEW.md
+├── generation-report.json
+└── references/
+    └── knowledge.md
 ```
 
 Only useful, evidence-supported files are created. Empty folders and artificial padding are excluded.
@@ -173,7 +168,38 @@ work/demo/
 └── frames/
 ```
 
-The agent then follows the repository’s `SKILL.md` workflow to interpret the evidence, research claims, generate the skill, validate it, and request approval.
+The agent then follows the repository’s `SKILL.md` workflow to interpret the evidence, ask necessary questions, and create validated `research.json` and `knowledge.json` inputs.
+
+### Generate the candidate
+
+```bash
+video-to-skill generate ./work/demo \
+  --output ./candidates/demo-skill \
+  --name demo-skill \
+  --description "Use when an agent needs the demonstrated workflow." \
+  --research ./research.json \
+  --knowledge ./knowledge.json
+```
+
+The input schemas are documented in [`references/input-contracts.md`](references/input-contracts.md). The generated candidate is integrity-hashed and remains blocked from installation.
+
+### Approve and install
+
+After reviewing `PREVIEW.md`, `claims.md`, and `inconsistencies.md`:
+
+```bash
+video-to-skill approve ./candidates/demo-skill --by "Your Name"
+video-to-skill install ./candidates/demo-skill --skills-dir ~/.codex/skills
+```
+
+Approval is authenticated with a local key and bound to the candidate digest. Modifying material files after generation invalidates approval. The key is created with owner-only permissions at `~/.config/video-to-skill/approval.key`; set `VIDEO_TO_SKILL_APPROVAL_KEY_FILE` to use another protected location.
+
+To create a verified archive for authorized redistribution:
+
+```bash
+video-to-skill package ./candidates/demo-skill \
+  --output ./dist/demo-skill.zip
+```
 
 ## Approval Preview
 
@@ -239,7 +265,7 @@ Generated skills should synthesize knowledge and use short, necessary evidence e
 
 The current candidate has been verified with:
 
-- 15 automated tests
+- 28 automated tests
 - Ruff static analysis
 - Skill structure validation
 - A real ffmpeg integration test
@@ -255,7 +281,7 @@ python3 tools/validate_generated_skill.py ./path/to/generated-skill
 
 ## Project Status
 
-Video to Skill is in early development. The extraction foundation, provenance model, approval gate, and validators are implemented. Future work will deepen scene detection, semantic topic generation, visual deduplication, multilingual evaluation, and host compatibility testing.
+Video to Skill is in early development. Extraction, validated research and knowledge inputs, candidate generation, conflict reporting, digest-bound approval, verified installation, and ZIP packaging are implemented. Future work will deepen scene detection, visual deduplication, multilingual evaluation, long-video recovery, and host compatibility testing.
 
 ## Contributing
 

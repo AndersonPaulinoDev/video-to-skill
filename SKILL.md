@@ -48,40 +48,47 @@ Ask only questions whose answers change scope, correctness, safety, or generated
 
 Research incomplete, unstable, safety-sensitive, or central claims. Record canonical URL, publisher, dates, supported claim, and authority level. Classify each comparison as `confirmed`, `updated`, `conflicted`, `unverified`, or `not-researched`. Never treat absence of evidence as proof of falsehood.
 
+Write the results to `research.json` using `references/input-contracts.md`. Write evidence-linked topics, procedures, examples, and unresolved questions to `knowledge.json`. Do not place unsupported statements in either file.
+
 ### 7. Generate the candidate
 
-Follow `references/output-contract.md`. Keep `SKILL.md` concise and route detail to topic files. Create only evidence-supported files from this structure:
+Run:
 
-```text
-<skill-name>/
-├── SKILL.md
-├── topics/
-├── procedures/
-├── examples/
-├── transcript/
-├── frames/
-├── glossary.md
-├── patterns.md
-├── cheatsheet.md
-├── sources.md
-├── claims.md
-├── inconsistencies.md
-└── generation-report.json
+```bash
+python3 scripts/video_to_skill.py generate <work-directory> \
+  --output <candidate-directory> \
+  --name <skill-name> \
+  --description "<when and why to use the generated skill>" \
+  --research research.json \
+  --knowledge knowledge.json
 ```
 
-Do not pad output with empty files. Do not reproduce the entire video or long passages.
+The generator validates evidence identifiers, writes the complete candidate, records inconsistencies, creates `PREVIEW.md`, and hashes the candidate contents. Follow `references/output-contract.md`.
 
 ### 8. Validate
 
-Run `python3 tools/validate_generated_skill.py <candidate-directory>` and the host's skill validator. Resolve failures before presenting the candidate as ready.
+Run `python3 tools/validate_generated_skill.py <candidate-directory> --stage candidate` and the host's skill validator. Resolve failures before presenting the candidate as ready.
 
 ### 9. Present the approval preview
 
-Show the proposed name and purpose, input and processing methods, extracted topics and procedures, questions and gaps, researched sources, claim statuses, files, validation results, and privacy/licensing cautions. End with a direct approval question.
+Show `PREVIEW.md` plus material conflicts and unresolved items. End with a direct approval question. Never infer approval from earlier authorization to analyze or generate.
 
 ### 10. Install or publish only after approval
 
-After explicit approval, install to the requested host and verify the installed files. Publish only material the user can redistribute. Default skills derived from third-party copyrighted videos to private use.
+After explicit approval, run:
+
+```bash
+python3 scripts/video_to_skill.py approve <candidate-directory> --by "<approver>"
+python3 scripts/video_to_skill.py install <candidate-directory> --skills-dir <host-skills-directory>
+```
+
+If unresolved items remain, disclose them and use `--accept-unresolved` only when the user explicitly accepts them. For redistribution, create a verified archive with `package`; do not upload it without separate authorization:
+
+```bash
+python3 scripts/video_to_skill.py package <candidate-directory> --output <skill-name>.zip
+```
+
+The approval digest becomes invalid if material candidate files change. Publish only material the user can redistribute. Default skills derived from third-party copyrighted videos to private use.
 
 ## Updating an existing generated skill
 
@@ -91,5 +98,6 @@ Analyze new video evidence separately, compare provenance and conflicts, preview
 
 - `scripts/video_to_skill.py`: stable CLI entrypoint
 - `references/pipeline.md`: extraction and analysis rules
+- `references/input-contracts.md`: validated research and knowledge JSON schemas
 - `references/output-contract.md`: generated-skill schema
 - `tools/validate_generated_skill.py`: deterministic validator
