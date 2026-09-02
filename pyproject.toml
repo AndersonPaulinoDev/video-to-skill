@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "video-to-skill"
-version = "0.5.0"
+version = "1.0.0"
 description = "Convert videos into source-grounded, installable agent skills."
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.5.0 - 2026-09-02
+## 1.0.0 - 2026-09-02 — First Public Release
+
+This is the first public version of Video to Skill. Five earlier iterations were
+private development milestones and are not part of the public version history.
 
 - Added public playlist/course inventory and resumable per-source course analysis.
 - Added deterministic multi-analysis merging with globally unique evidence identifiers.

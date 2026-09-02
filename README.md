@@ -9,11 +9,31 @@
 **Video to Skill** converts local videos and supported public video URLs into complete, source-grounded agent skills. It extracts speech and visual evidence, researches important claims, flags inconsistencies, validates the generated package, and asks for approval before anything is installed or published.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5FF.svg)](LICENSE.md)
+[![Release](https://img.shields.io/badge/release-v1.0.0-8B5CF6.svg)](#v100--first-public-release)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-50%20passing-22C55E.svg)](#verification)
-[![Status](https://img.shields.io/badge/status-early%20development-F59E0B.svg)](#project-status)
+[![Status](https://img.shields.io/badge/status-public%20release-22C55E.svg)](#project-status)
 
 </div>
+
+---
+
+## v1.0.0 — First Public Release
+
+This is the first version of Video to Skill released for public use. It brings
+the complete local-first workflow together in one installable open-source tool:
+
+- Convert a single video, public video URL, playlist, or course
+- Extract timestamped transcript and visual evidence
+- Resume interrupted analysis without repeating completed work
+- Merge multiple videos while preserving agreements and contradictions
+- Research important claims against current authoritative sources
+- Generate operational, learning, hybrid, or reference skills
+- Redact common personal information before publication
+- Preview, validate, approve, package, and install the exact generated skill
+
+The five builds before v1.0.0 were private development iterations. **v1.0.0 is
+the beginning of the public release history.**
 
 ---
 
@@ -366,7 +386,7 @@ python3 tools/validate_generated_skill.py ./path/to/generated-skill
 
 ## Project Status
 
-Video to Skill is in early development. Extraction, validated research and knowledge inputs, resumable workspaces, scene-aware visual analysis, bounded reinspection, playlist/course aggregation, multi-video merging, publication redaction, generated usage modes, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will deepen semantic cross-video conflict detection, broaden multilingual evaluation, add performance benchmarks, and expand host compatibility testing.
+Video to Skill v1.0.0 is the first public release. Extraction, validated research and knowledge inputs, resumable workspaces, scene-aware visual analysis, bounded reinspection, playlist/course aggregation, multi-video merging, publication redaction, generated usage modes, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. The next phase focuses on real-user installation testing, examples made from openly licensed videos, broader host compatibility, multilingual evaluation, and performance benchmarks.
 
 ## Contributing
 
