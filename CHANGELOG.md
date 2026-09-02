@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 - 2026-09-02
+
+- Added SQLite-backed resumable analysis with six observable processing stages.
+- Added progress reporting and source/configuration integrity checks for resumed runs.
+- Added bounded RGB scene-change detection that catches isoluminant visual changes.
+- Added near-duplicate frame suppression before OCR and semantic analysis.
+- Added exact-frame and dense-window reinspection with a 60-frame context cap.
+- Promoted selected reinspection frames into the normal `FRM-###` evidence contract.
+- Required source-digest verification before every visual reinspection request.
+- Added interrupted-run, changed-settings, scene-cut, deduplication, timestamp, and reinspection tests.
+
 ## 0.3.0 - 2026-09-02
 
 - Added a deterministic end-to-end evaluation command and scoring engine.

@@ -3,7 +3,7 @@
   "analysis": {
     "transcript_cues": 2,
     "candidate_claims": 0,
-    "minimum_frames": 3
+    "minimum_frames": 1
   },
   "claim_statuses": {},
   "evidence_ids": ["VID-001", "VID-002"],

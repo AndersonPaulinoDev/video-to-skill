@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5FF.svg)](LICENSE.md)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-34%20passing-22C55E.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-41%20passing-22C55E.svg)](#verification)
 [![Status](https://img.shields.io/badge/status-early%20development-F59E0B.svg)](#project-status)
 
 </div>
@@ -47,6 +47,9 @@ The deterministic pipeline handles media extraction and provenance. The agent wo
 | Subtitle extraction | Reuses timestamped SRT or WebVTT evidence when available |
 | Local transcription | Falls back to Whisper or faster-whisper when subtitles are unavailable |
 | Visual analysis | Samples timestamped frames for slides, interfaces, diagrams, demonstrations, and state changes |
+| Resumable workspaces | Records stage progress in SQLite and continues interrupted analysis without repeating completed work |
+| Scene-aware sampling | Detects RGB scene changes and removes near-duplicate frames before OCR |
+| Visual reinspection | Extracts an exact moment or bounded dense window and promotes it into citable frame evidence |
 | OCR | Uses Tesseract to recover visible text from sampled frames |
 | Provenance | Hashes source media and extracted frames with SHA-256 |
 | Claim detection | Identifies material statements that may require verification |
@@ -171,6 +174,31 @@ work/demo/
 
 The agent then follows the repository’s `SKILL.md` workflow to interpret the evidence, ask necessary questions, and create validated `research.json` and `knowledge.json` inputs.
 
+### Resume or inspect progress
+
+```bash
+video-to-skill progress ./work/demo
+
+video-to-skill analyze ./videos/demo.mp4 \
+  --output ./work/demo \
+  --resume
+```
+
+Resume requires the same source and extraction settings. Completed stages are reused; changed or missing media is rejected instead of silently mixing evidence.
+
+### Reinspect an important visual moment
+
+```bash
+video-to-skill inspect-frame ./work/demo 01:23.5
+
+video-to-skill inspect-window ./work/demo \
+  --start 01:20 \
+  --end 01:26 \
+  --fps 2
+```
+
+Dense windows are capped at 60 frames. Selected frames are hashed and assigned normal `FRM-###` identifiers so generated knowledge can cite them.
+
 ### Generate the candidate
 
 ```bash
@@ -239,6 +267,7 @@ video_to_skill/
 ├── analyze/      # Candidate claim detection and evidence organization
 ├── generate/     # Approval preview and generated-skill preparation
 ├── evals/        # Deterministic end-to-end scoring engine
+├── workspace.py  # SQLite stage recovery and progress reporting
 ├── pipeline.py   # End-to-end deterministic extraction workflow
 ├── provenance.py # SHA-256 records and machine-readable output
 └── cli.py        # converter lifecycle and evaluation commands
@@ -279,12 +308,13 @@ Generated skills should synthesize knowledge and use short, necessary evidence e
 
 The current candidate has been verified with:
 
-- 34 automated tests
+- 41 automated tests
 - Ruff static analysis
 - Skill structure validation
 - A real ffmpeg integration test
 - An end-to-end generated-video test covering subtitles, sampled frames, provenance, candidate claims, and the approval lock
 - A three-case synthetic evaluation suite with a 0.95 regression threshold
+- Interrupted-run recovery, RGB scene-cut, deduplication, and bounded reinspection tests
 
 Run the checks locally:
 
@@ -297,7 +327,7 @@ python3 tools/validate_generated_skill.py ./path/to/generated-skill
 
 ## Project Status
 
-Video to Skill is in early development. Extraction, validated research and knowledge inputs, candidate generation, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will deepen scene detection, visual deduplication, multilingual evaluation, long-video recovery, and host compatibility testing.
+Video to Skill is in early development. Extraction, validated research and knowledge inputs, resumable workspaces, scene-aware visual analysis, bounded reinspection, candidate generation, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will add playlist/course aggregation, multi-video merging, publication redaction, broader multilingual evaluation, and host compatibility testing.
 
 ## Contributing
 
@@ -312,6 +342,10 @@ When contributing:
 - Do not weaken the approval or access-control boundaries
 
 Security concerns should follow [`SECURITY.md`](SECURITY.md).
+
+## Related projects
+
+Video to Skill was originally inspired by [`book-to-skill`](https://github.com/virgiliojr94/book-to-skill). Its resumable-workspace and course-coverage direction was informed by [`Lum1104/video-to-skill`](https://github.com/Lum1104/video-to-skill), while bounded visual reinspection and RGB-aware scene analysis were informed by [`brenoepics/video-to-skill`](https://github.com/brenoepics/video-to-skill). This repository remains an independent implementation centered on authoritative research, explicit conflict reporting, authenticated approval, and measurable evaluation.
 
 ## License
 

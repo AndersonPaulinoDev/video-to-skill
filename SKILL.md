@@ -34,11 +34,13 @@ Run `python3 scripts/video_to_skill.py doctor`. The basic pipeline requires Pyth
 
 Run `python3 scripts/video_to_skill.py analyze <path-or-url> --output <work-directory>`.
 
-The command creates media metadata, subtitle or transcript evidence, sampled frames, hashes, claims, a manifest, and `preview.json`. Reuse embedded or sidecar subtitles before transcribing audio. Keep timestamps in all records. Read `references/pipeline.md` for fallbacks.
+The command creates a resumable evidence workspace, media metadata, subtitle or transcript evidence, scene-aware sampled frames, hashes, claims, a manifest, and `preview.json`. Reuse embedded or sidecar subtitles before transcribing audio. Keep timestamps in all records. If processing stops, inspect `progress <work-directory>` and rerun the same analysis command with `--resume`; never silently restart and discard completed evidence. Read `references/pipeline.md` for fallbacks and `references/workspaces.md` for resume and visual reinspection commands.
 
 ### 4. Analyze meaning, not just words
 
 Classify evidence into concepts, procedures, decision rules, demonstrations, examples, tools, commands, configuration, warnings, anti-patterns, claims requiring verification, and visual-only information. Separate direct evidence, reasonable inference, and unresolved uncertainty.
+
+When a procedure or interface change remains visually ambiguous, request an exact frame with `inspect-frame` or a short bounded sequence with `inspect-window`. These commands add selected frames to the standard `FRM-###` evidence set. Do not densely inspect an entire video.
 
 ### 5. Resolve meaningful gaps
 
@@ -100,5 +102,6 @@ Analyze new video evidence separately, compare provenance and conflicts, preview
 - `references/pipeline.md`: extraction and analysis rules
 - `references/input-contracts.md`: validated research and knowledge JSON schemas
 - `references/output-contract.md`: generated-skill schema
+- `references/workspaces.md`: resume, progress, scene sampling, and bounded reinspection
 - `tools/validate_generated_skill.py`: deterministic validator
 - `evals/`: repository-owned synthetic fixtures and measurable regression expectations
