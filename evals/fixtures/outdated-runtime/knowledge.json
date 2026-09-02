@@ -1,0 +1,25 @@
+{
+  "purpose": "Use supported runtime guidance while retaining the outdated video claim.",
+  "topics": [
+    {
+      "title": "Runtime migration",
+      "summary": "Use Python 3 for current releases and preserve the Python 2 statement as historical evidence.",
+      "evidence": ["VID-001", "WEB-001"]
+    }
+  ],
+  "procedures": [
+    {
+      "title": "Check runtime compatibility",
+      "summary": "Confirm the installed major version before continuing.",
+      "evidence": ["VID-001", "WEB-001"],
+      "steps": [
+        {
+          "text": "Verify that the environment provides Python 3.",
+          "evidence": ["WEB-001"]
+        }
+      ]
+    }
+  ],
+  "examples": [],
+  "unresolved_questions": []
+}

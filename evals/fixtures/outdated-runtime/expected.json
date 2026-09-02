@@ -1,0 +1,14 @@
+{
+  "minimum_score": 0.95,
+  "analysis": {
+    "transcript_cues": 1,
+    "candidate_claims": 1,
+    "minimum_frames": 2
+  },
+  "claim_statuses": {
+    "CLM-001": "updated"
+  },
+  "evidence_ids": ["VID-001", "WEB-001"],
+  "knowledge_phrases": ["Runtime migration", "Python 3"],
+  "conflict_phrases": ["Python 2", "Python 3", "updated"]
+}

@@ -1,0 +1,25 @@
+{
+  "purpose": "Aplicar una revisión segura antes de instalar.",
+  "topics": [
+    {
+      "title": "Revisión segura",
+      "summary": "La salida se revisa antes de registrar la aprobación.",
+      "evidence": ["VID-001", "VID-002"]
+    }
+  ],
+  "procedures": [
+    {
+      "title": "Revisar antes de instalar",
+      "summary": "Usar este proceso para evitar instalaciones sin aprobación.",
+      "evidence": ["VID-001", "VID-002"],
+      "steps": [
+        {
+          "text": "Revisa la salida y registra la aprobación.",
+          "evidence": ["VID-001", "VID-002"]
+        }
+      ]
+    }
+  ],
+  "examples": [],
+  "unresolved_questions": []
+}

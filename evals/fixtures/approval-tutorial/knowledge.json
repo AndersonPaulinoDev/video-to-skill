@@ -1,0 +1,25 @@
+{
+  "purpose": "Enforce a review gate before deployment.",
+  "topics": [
+    {
+      "title": "Approval gate",
+      "summary": "Inspect the exact candidate before approving deployment.",
+      "evidence": ["VID-001", "VID-002", "WEB-001"]
+    }
+  ],
+  "procedures": [
+    {
+      "title": "Review a deployment candidate",
+      "summary": "Use this procedure before installation or publication.",
+      "evidence": ["VID-001", "VID-002"],
+      "steps": [
+        {
+          "text": "Inspect the candidate and record explicit approval.",
+          "evidence": ["VID-002", "WEB-001"]
+        }
+      ]
+    }
+  ],
+  "examples": [],
+  "unresolved_questions": []
+}

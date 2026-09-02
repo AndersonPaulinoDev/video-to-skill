@@ -1,0 +1,8 @@
+1
+00:00:00,000 --> 00:00:01,300
+Primero revisa la salida generada.
+
+2
+00:00:01,400 --> 00:00:02,800
+Después registra la aprobación antes de instalar.
+

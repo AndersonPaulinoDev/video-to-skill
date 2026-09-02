@@ -1,3 +1,5 @@
 # Architecture
 
 The extraction layer resolves the source, records metadata and hashes, extracts timestamped speech, samples visual evidence, runs optional OCR, and prepares candidate claims. The agent supplies evidence-linked `research.json` and `knowledge.json` records after questions and authoritative research. The generation layer validates those records and writes a digest-bound candidate. The lifecycle layer authenticates explicit approval with a protected local HMAC key, confines installation to the selected skills directory, verifies installed contents, and creates publication-safe ZIP packages only from approved candidates.
+
+The evaluation layer generates tiny synthetic MP4 files from repository-owned specifications, attaches authored subtitles, runs the real analysis and generation pipeline, and scores observable outputs. Its weighted dimensions are analysis, structure, claim status, evidence, knowledge, conflict handling, and the closed approval gate. Every individual expectation must pass in addition to the numeric threshold, so a high aggregate cannot hide a safety regression.

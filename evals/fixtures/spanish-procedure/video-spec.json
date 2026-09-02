@@ -1,0 +1,8 @@
+{
+  "duration_seconds": 3,
+  "size": "320x180",
+  "color": "green",
+  "subtitle": "source.srt",
+  "frame_interval_seconds": 1,
+  "max_frames": 5
+}

@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from .dependencies import capability_report
+from .evals.runner import run_evaluations
 from .exceptions import VideoToSkillError
 from .generate.candidate import generate_candidate
 from .lifecycle import approve_candidate, install_candidate, package_candidate
@@ -35,6 +36,10 @@ def build_parser() -> argparse.ArgumentParser:
     package = commands.add_parser("package", help="Create a verified zip from an approved candidate")
     package.add_argument("candidate", type=Path)
     package.add_argument("--output", required=True, type=Path)
+    evaluate = commands.add_parser("evaluate", help="Run the synthetic end-to-end evaluation suite")
+    evaluate.add_argument("--manifest", required=True, type=Path)
+    evaluate.add_argument("--output", type=Path)
+    evaluate.add_argument("--minimum-score", type=float)
     return root
 
 def main(argv: list[str] | None = None) -> int:
@@ -56,9 +61,13 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "install":
             destination = install_candidate(args.candidate, args.skills_dir)
             result = {"state": "installed", "destination": str(destination)}
-        else:
+        elif args.command == "package":
             package = package_candidate(args.candidate, args.output)
             result = {"state": "packaged", "output": str(package)}
+        else:
+            result = run_evaluations(args.manifest, args.output, args.minimum_score)
+            print(json.dumps(result, indent=2))
+            return 0 if result["passed"] else 1
         print(json.dumps(result, indent=2))
         return 0
     except VideoToSkillError as exc:

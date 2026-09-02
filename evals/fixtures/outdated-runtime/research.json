@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "id": "WEB-001",
+      "title": "Synthetic current runtime documentation",
+      "url": "https://example.invalid/runtime",
+      "publisher": "Video to Skill Evaluation"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "status": "updated",
+      "current_finding": "Current releases require Python 3.",
+      "evidence": ["WEB-001"],
+      "confidence": "high"
+    }
+  ]
+}

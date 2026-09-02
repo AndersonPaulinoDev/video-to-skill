@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5FF.svg)](LICENSE.md)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-28%20passing-22C55E.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-34%20passing-22C55E.svg)](#verification)
 [![Status](https://img.shields.io/badge/status-early%20development-F59E0B.svg)](#project-status)
 
 </div>
@@ -54,6 +54,7 @@ The deterministic pipeline handles media extraction and provenance. The agent wo
 | Conflict reporting | Preserves what the video says and what current evidence says instead of silently replacing either |
 | Approval gate | Blocks installation and publication until the user approves the exact candidate |
 | Validation | Checks both the skill structure and the evidence contract |
+| Evaluation harness | Runs owned synthetic videos through the real pipeline and enforces measurable regression thresholds |
 
 ## What It Generates
 
@@ -201,6 +202,18 @@ video-to-skill package ./candidates/demo-skill \
   --output ./dist/demo-skill.zip
 ```
 
+### Run the evaluation suite
+
+The repository includes three small, synthetic fixtures authored for this project; it contains no third-party video or transcript material. Run them through the actual converter with:
+
+```bash
+video-to-skill evaluate \
+  --manifest evals/manifest.json \
+  --output eval-report.json
+```
+
+The suite measures analysis accuracy, generated structure, claim classification, evidence retention, knowledge extraction, conflict reporting, and approval-gate safety. A run fails if its aggregate score is below `0.95` or if any expected behavior is missing.
+
 ## Approval Preview
 
 Before installation or publication, the user sees a plain-language report containing:
@@ -225,9 +238,10 @@ video_to_skill/
 ├── extract/      # Media probing, subtitles, transcription, frames, and OCR
 ├── analyze/      # Candidate claim detection and evidence organization
 ├── generate/     # Approval preview and generated-skill preparation
+├── evals/        # Deterministic end-to-end scoring engine
 ├── pipeline.py   # End-to-end deterministic extraction workflow
 ├── provenance.py # SHA-256 records and machine-readable output
-└── cli.py        # doctor and analyze commands
+└── cli.py        # converter lifecycle and evaluation commands
 ```
 
 Supporting layers include:
@@ -265,23 +279,25 @@ Generated skills should synthesize knowledge and use short, necessary evidence e
 
 The current candidate has been verified with:
 
-- 28 automated tests
+- 34 automated tests
 - Ruff static analysis
 - Skill structure validation
 - A real ffmpeg integration test
 - An end-to-end generated-video test covering subtitles, sampled frames, provenance, candidate claims, and the approval lock
+- A three-case synthetic evaluation suite with a 0.95 regression threshold
 
 Run the checks locally:
 
 ```bash
 python3 -m pytest -q
 python3 -m ruff check .
+video-to-skill evaluate --manifest evals/manifest.json
 python3 tools/validate_generated_skill.py ./path/to/generated-skill
 ```
 
 ## Project Status
 
-Video to Skill is in early development. Extraction, validated research and knowledge inputs, candidate generation, conflict reporting, digest-bound approval, verified installation, and ZIP packaging are implemented. Future work will deepen scene detection, visual deduplication, multilingual evaluation, long-video recovery, and host compatibility testing.
+Video to Skill is in early development. Extraction, validated research and knowledge inputs, candidate generation, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will deepen scene detection, visual deduplication, multilingual evaluation, long-video recovery, and host compatibility testing.
 
 ## Contributing
 

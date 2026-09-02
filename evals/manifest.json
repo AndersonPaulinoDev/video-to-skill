@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "minimum_score": 0.95,
+  "cases": [
+    {
+      "id": "approval-tutorial",
+      "fixture": "fixtures/approval-tutorial",
+      "name": "approval-tutorial",
+      "description": "Use when an agent must review and approve a deployment candidate."
+    },
+    {
+      "id": "outdated-runtime",
+      "fixture": "fixtures/outdated-runtime",
+      "name": "runtime-migration",
+      "description": "Use when an agent must reconcile outdated runtime guidance."
+    },
+    {
+      "id": "spanish-procedure",
+      "fixture": "fixtures/spanish-procedure",
+      "name": "revision-segura",
+      "description": "Usar cuando un agente necesite revisar una salida antes de instalarla."
+    }
+  ]
+}

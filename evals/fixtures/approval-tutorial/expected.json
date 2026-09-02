@@ -1,0 +1,14 @@
+{
+  "minimum_score": 0.95,
+  "analysis": {
+    "transcript_cues": 2,
+    "candidate_claims": 1,
+    "minimum_frames": 3
+  },
+  "claim_statuses": {
+    "CLM-001": "confirmed"
+  },
+  "evidence_ids": ["VID-001", "VID-002", "WEB-001"],
+  "knowledge_phrases": ["Approval gate", "record explicit approval"],
+  "conflict_phrases": []
+}

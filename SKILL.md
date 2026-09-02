@@ -101,3 +101,4 @@ Analyze new video evidence separately, compare provenance and conflicts, preview
 - `references/input-contracts.md`: validated research and knowledge JSON schemas
 - `references/output-contract.md`: generated-skill schema
 - `tools/validate_generated_skill.py`: deterministic validator
+- `evals/`: repository-owned synthetic fixtures and measurable regression expectations

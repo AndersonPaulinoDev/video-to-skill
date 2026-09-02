@@ -1,0 +1,12 @@
+{
+  "minimum_score": 0.95,
+  "analysis": {
+    "transcript_cues": 2,
+    "candidate_claims": 0,
+    "minimum_frames": 3
+  },
+  "claim_statuses": {},
+  "evidence_ids": ["VID-001", "VID-002"],
+  "knowledge_phrases": ["Revisión segura", "registra la aprobación"],
+  "conflict_phrases": []
+}

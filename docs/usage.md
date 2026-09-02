@@ -9,3 +9,13 @@
 7. Run `video-to-skill install <candidate> --skills-dir <directory>` or create a distributable archive with `video-to-skill package`.
 
 Generation, approval, installation, and packaging are separate commands so approval cannot be bypassed accidentally.
+
+## Evaluate a change
+
+Run the repository-owned end-to-end suite before merging converter changes:
+
+```bash
+video-to-skill evaluate --manifest evals/manifest.json --output eval-report.json
+```
+
+The command exits unsuccessfully if the overall score is below the manifest threshold or any fixture expectation fails.

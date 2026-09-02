@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "id": "WEB-001",
+      "title": "Synthetic deployment policy",
+      "url": "https://example.invalid/deployment-policy",
+      "publisher": "Video to Skill Evaluation"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "status": "confirmed",
+      "current_finding": "The synthetic policy requires review before deployment.",
+      "evidence": ["WEB-001"],
+      "confidence": "high"
+    }
+  ]
+}

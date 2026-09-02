@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.2.0 - Unreleased
+## 0.3.0 - 2026-09-02
+
+- Added a deterministic end-to-end evaluation command and scoring engine.
+- Added three repository-owned synthetic fixtures covering approval workflow, outdated claims, and Spanish subtitles.
+- Added measurable regression thresholds for analysis, generated structure, claim status, evidence, knowledge, conflicts, and approval safety.
+- Added positive, negative, boundary, and path-confinement evaluator tests.
+- Bounded synthetic media dimensions and sampling to prevent fixture-driven CI exhaustion.
+- Added the complete evaluation suite to CI.
+
+## 0.2.0 - 2026-09-01
 
 - Added complete `generate → approve → install/package` lifecycle.
 - Added validated research and structured-knowledge input contracts.
