@@ -394,7 +394,7 @@ Released under the [MIT License](LICENSE.md).
 
 <div align="center">
 
-**Built by [BNS Foundry](https://bnsfoundry.com)**
+**Built by [Anderson Paulino](https://bnsfoundry.com)**
 
 *Turn video knowledge into something your agent can actually use.*
 
