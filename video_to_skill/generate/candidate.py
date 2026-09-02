@@ -7,11 +7,13 @@ from urllib.parse import parse_qsl, urlparse
 
 from ..exceptions import VideoToSkillError
 from ..provenance import write_json
+from ..redaction import Redactor
 from ..sanitize import sanitize_text
 
 _SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-_EVIDENCE = re.compile(r"^(?:VID|FRM|USR|WEB|INF)-\d{3}$")
+_EVIDENCE = re.compile(r"^(?:VID|FRM|USR|WEB|INF)-\d{3,6}$")
 _STATUSES = {"confirmed", "updated", "conflicted", "unverified", "not-researched"}
+_MODES = {"operational", "learning", "hybrid", "reference"}
 
 
 def _read_json(path: Path) -> dict | list:
@@ -58,7 +60,7 @@ def _validate_research(payload: dict, claim_ids: set[str]) -> tuple[list[dict], 
         source_id = source.get("id")
         url = source.get("url", "")
         parsed = urlparse(url)
-        if not isinstance(source_id, str) or not re.fullmatch(r"WEB-\d{3}", source_id):
+        if not isinstance(source_id, str) or not re.fullmatch(r"WEB-\d{3,6}", source_id):
             raise VideoToSkillError(f"Invalid research source id: {source_id}")
         if source_id in source_ids:
             raise VideoToSkillError(f"Duplicate research source id: {source_id}")
@@ -176,25 +178,53 @@ def _write_sources(path: Path, manifest: dict, cues: list[dict], frames: list[di
                    ocr: list[dict], sources: list[dict], evidence_used: set[str]) -> None:
     lines = [
         "# Sources", "", "## Video source", "",
-        f"- Source: {manifest['source_display']}",
+        f"- Source set: {manifest['source_display']}",
         f"- Source kind: {manifest['source_kind']}",
-        f"- SHA-256: `{manifest['media_sha256']}`",
         f"- Processed: {manifest['created_at']}", "",
-        "## Timestamped video evidence", "",
-        "| ID | Time | Excerpt |", "|---|---:|---|",
     ]
+    video_sources = manifest.get("sources") or [{
+        "id": "SRC-001", "display": manifest["source_display"],
+        "sha256": manifest["media_sha256"],
+    }]
+    lines.extend(["| Source ID | Display | SHA-256 |", "|---|---|---|"])
+    for source in video_sources:
+        display = sanitize_text(str(source.get("display", "Unknown source"))).replace("|", "\\|")
+        lines.append(f"| `{source.get('id', 'SRC-001')}` | {display} | `{source.get('sha256', '')}` |")
+    coverage = manifest.get("coverage")
+    if coverage:
+        lines.extend([
+            "", "## Source coverage", "",
+            f"- Expected: {coverage.get('expected_sources', 0)}",
+            f"- Completed: {coverage.get('completed_sources', 0)}",
+            f"- Failed or inaccessible: {coverage.get('failed_sources', 0)}",
+        ])
+        for missing in coverage.get("unresolved_sources", []):
+            lines.append(
+                f"- Unresolved `{missing.get('id', 'unknown')}`: "
+                f"{sanitize_text(str(missing.get('title', 'Unknown source')))}"
+            )
+    lines.extend(["",
+        "## Timestamped video evidence", "",
+        "| ID | Source | Time | Excerpt |", "|---|---|---:|---|",
+    ])
     for cue in cues:
         if cue["id"] not in evidence_used:
             continue
         excerpt = sanitize_text(cue.get("text", "")).replace("|", "\\|").strip()[:240]
-        lines.append(f"| `{cue['id']}` | {float(cue.get('start', 0)):.1f}s | {excerpt} |")
-    lines.extend(["", "## Visual evidence", "", "| ID | Time | SHA-256 | OCR |", "|---|---:|---|---|"])
+        lines.append(
+            f"| `{cue['id']}` | `{cue.get('source_id', 'SRC-001')}` | "
+            f"{float(cue.get('start', 0)):.1f}s | {excerpt} |"
+        )
+    lines.extend(["", "## Visual evidence", "", "| ID | Source | Time | SHA-256 | OCR |", "|---|---|---:|---|---|"])
     ocr_by_id = {item["id"]: item.get("text", "") for item in ocr}
     for frame in frames:
         if frame["id"] not in evidence_used:
             continue
         text = sanitize_text(ocr_by_id.get(frame["id"], "")).replace("|", "\\|").strip()[:160]
-        lines.append(f"| `{frame['id']}` | {float(frame.get('timestamp', 0)):.1f}s | `{frame.get('sha256', '')}` | {text or '—'} |")
+        lines.append(
+            f"| `{frame['id']}` | `{frame.get('source_id', 'SRC-001')}` | "
+            f"{float(frame.get('timestamp', 0)):.1f}s | `{frame.get('sha256', '')}` | {text or '—'} |"
+        )
     lines.extend(["", "## External research", ""])
     if not sources:
         lines.append("No external research sources were supplied.")
@@ -264,13 +294,78 @@ def _write_knowledge(path: Path, knowledge: dict, claims: list[dict]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _mode_rules(mode: str) -> list[str]:
+    if mode == "learning":
+        return [
+            "Use `references/learning-guide.md` to diagnose, teach, quiz, practice, and review.",
+            "Reveal answers after the learner attempts a question unless they ask for direct instruction.",
+        ]
+    if mode == "hybrid":
+        return [
+            "Choose operational guidance or the learning workflow based on the user's request.",
+            "For teaching and practice, follow `references/learning-guide.md`.",
+        ]
+    if mode == "reference":
+        return [
+            "Answer as a concise source reference; retrieve only the relevant grounded section.",
+            "Do not create exercises unless the user explicitly requests them.",
+        ]
+    return ["Apply the source-grounded procedure directly to the user's work when appropriate."]
+
+
+def _write_learning_guide(path: Path, knowledge: dict) -> None:
+    units = [record["title"] for section in ("topics", "procedures", "examples")
+             for record in knowledge.get(section, [])]
+    lines = [
+        "# Learning guide", "",
+        "Use a short diagnostic before teaching, then adapt depth to the learner's demonstrated understanding.", "",
+        "## Learning loop", "",
+        "1. Ask one or two diagnostic questions grounded in the source.",
+        "2. Teach one unit with its evidence identifiers.",
+        "3. Give a retrieval question or practical exercise.",
+        "4. Review the attempt against the source and explain corrections.",
+        "5. Continue or revisit the weak point.", "",
+        "## Available units", "",
+    ]
+    lines.extend(f"- {unit}" for unit in units)
+    if not units:
+        lines.append("- Extracted claims and evidence in `references/knowledge.md`")
+    lines.extend(["", "Never invent course content, scores, or answer keys absent from the evidence."])
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _publication_manifest(manifest: dict) -> dict:
+    clean = json.loads(json.dumps(manifest))
+
+    def display(value: str) -> str:
+        parsed = urlparse(value)
+        if not parsed.scheme and Path(value).is_absolute():
+            return Path(value).name
+        return value
+
+    clean["source_display"] = display(str(clean.get("source_display", "Unknown source")))
+    for source in clean.get("sources", []):
+        source["display"] = display(str(source.get("display", "Unknown source")))
+    coverage = clean.get("coverage")
+    if coverage:
+        coverage["unresolved_sources"] = [
+            {"id": item.get("id", "unknown"), "title": item.get("title", "Unknown source")}
+            for item in coverage.get("unresolved_sources", [])
+        ]
+    return clean
+
+
 def generate_candidate(workdir: Path, output: Path, name: str, description: str,
-                       research_path: Path | None = None, knowledge_path: Path | None = None) -> dict:
+                       research_path: Path | None = None, knowledge_path: Path | None = None,
+                       mode: str = "operational", redact_pii: bool = True,
+                       redact_names: list[str] | None = None) -> dict:
     if not _SLUG.fullmatch(name) or len(name) > 64:
         raise VideoToSkillError("Skill name must be a lowercase hyphenated slug of at most 64 characters")
     description = sanitize_text(description).strip()
     if not description:
         raise VideoToSkillError("Skill description cannot be empty")
+    if mode not in _MODES:
+        raise VideoToSkillError(f"Unsupported generated-skill mode: {mode}")
     if output.is_symlink():
         raise VideoToSkillError("Candidate output cannot be a symbolic link")
     if output.exists():
@@ -296,6 +391,15 @@ def generate_candidate(workdir: Path, output: Path, name: str, description: str,
     knowledge = _validate_knowledge(_read_json(knowledge_path), known_evidence) if knowledge_path else {
         "purpose": "", "topics": [], "procedures": [], "examples": [], "unresolved_questions": []
     }
+    redactor = Redactor(enabled=redact_pii, names=redact_names or [])
+    description = redactor.redact(description)
+    manifest = redactor.redact_data(_publication_manifest(manifest))
+    claims = redactor.redact_data(claims)
+    frames = redactor.redact_data(frames)
+    ocr = redactor.redact_data(ocr)
+    cues = redactor.redact_data(cues)
+    sources = redactor.redact_data(sources)
+    knowledge = redactor.redact_data(knowledge)
     output.mkdir(parents=True, exist_ok=True)
     references = output / "references"
     references.mkdir()
@@ -309,6 +413,9 @@ def generate_candidate(workdir: Path, output: Path, name: str, description: str,
         "3. Read `inconsistencies.md` when a claim is updated, conflicted, unverified, or not researched.",
         "4. Preserve the distinction between video evidence and external research.",
         "5. Do not extend the source beyond its evidence; label new inference explicitly.", "",
+        "## Usage mode", "",
+        f"This package uses `{mode}` mode.", "",
+        *[f"- {rule}" for rule in _mode_rules(mode)], "",
         "## Evidence", "",
         "Use `sources.md` to resolve VID, FRM, and WEB identifiers. Material guidance in this package is traceable to those identifiers.", "",
     ]
@@ -323,15 +430,31 @@ def generate_candidate(workdir: Path, output: Path, name: str, description: str,
     _write_claims(output / "claims.md", claims)
     _write_inconsistencies(output / "inconsistencies.md", claims, knowledge["unresolved_questions"])
     _write_knowledge(references / "knowledge.md", knowledge, claims)
+    if mode in {"learning", "hybrid"}:
+        _write_learning_guide(references / "learning-guide.md", knowledge)
     unresolved = [item["id"] for item in claims if item["status"] in {"unverified", "not-researched"}]
     expected_files = [
         "PREVIEW.md", "SKILL.md", "claims.md", "generation-report.json",
         "inconsistencies.md", "references/knowledge.md", "sources.md",
+        "redaction-report.json",
     ]
+    if mode in {"learning", "hybrid"}:
+        expected_files.append("references/learning-guide.md")
+        expected_files.sort()
+    write_json(output / "redaction-report.json", redactor.report())
+    source_count = len(manifest.get("sources") or [manifest])
+    coverage = manifest.get("coverage", {
+        "expected_sources": source_count, "completed_sources": source_count,
+        "failed_sources": 0, "complete": True, "unresolved_sources": [],
+    })
+    unresolved_sources = [item.get("id", "unknown") for item in coverage.get("unresolved_sources", [])]
     preview = [
         f"# Approval preview: {name}", "",
         f"- Purpose: {description}",
-        f"- Source: {manifest['source_display']}",
+        f"- Source set: {manifest['source_display']} ({source_count} source{'s' if source_count != 1 else ''})",
+        f"- Usage mode: {mode}",
+        f"- PII redaction: {'enabled' if redact_pii else 'disabled by explicit option'}",
+        f"- Source coverage: {coverage.get('completed_sources', source_count)}/{coverage.get('expected_sources', source_count)} completed",
         f"- Evidence: {len(cues)} transcript cues, {len(frames)} frames, {len(claims)} claims",
         f"- Research: {len(sources)} external sources",
         f"- Unresolved claims: {len(unresolved)}",
@@ -342,15 +465,21 @@ def generate_candidate(workdir: Path, output: Path, name: str, description: str,
     ]
     (output / "PREVIEW.md").write_text("\n".join(preview) + "\n", encoding="utf-8")
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "state": "candidate-ready",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "name": name,
-        "source": {"display": manifest["source_display"], "sha256": manifest["media_sha256"]},
+        "source": {"display": manifest["source_display"], "sha256": manifest["media_sha256"],
+                   "count": source_count},
+        "mode": mode,
+        "redaction": redactor.report(),
         "inputs": {"research_supplied": bool(research_path), "knowledge_supplied": bool(knowledge_path)},
-        "counts": {"cues": len(cues), "frames": len(frames), "claims": len(claims), "sources": len(sources)},
+        "counts": {"cues": len(cues), "frames": len(frames), "claims": len(claims),
+                   "course_sources": source_count, "research_sources": len(sources)},
         "unresolved_claims": unresolved,
         "unresolved_questions": knowledge["unresolved_questions"],
+        "unresolved_sources": unresolved_sources,
+        "coverage": coverage,
         "files": expected_files,
         "approval": {"approved": False, "approved_at": None, "approved_by": None,
                      "accepted_unresolved": False, "approved_digest": None, "signature": None},

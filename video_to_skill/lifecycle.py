@@ -90,7 +90,11 @@ def approve_candidate(candidate: Path, approved_by: str, accept_unresolved: bool
     report = _load_report(candidate)
     if report.get("state") == "approved":
         raise VideoToSkillError("Candidate is already approved")
-    unresolved = bool(report.get("unresolved_claims") or report.get("unresolved_questions"))
+    unresolved = bool(
+        report.get("unresolved_claims")
+        or report.get("unresolved_questions")
+        or report.get("unresolved_sources")
+    )
     if unresolved and not accept_unresolved:
         raise VideoToSkillError("Candidate has unresolved items; review them or pass --accept-unresolved")
     approved_by = approved_by.strip()

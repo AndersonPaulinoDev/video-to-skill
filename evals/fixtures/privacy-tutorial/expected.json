@@ -1,0 +1,17 @@
+{
+  "minimum_score": 0.95,
+  "analysis": {
+    "transcript_cues": 1,
+    "candidate_claims": 1,
+    "minimum_frames": 1
+  },
+  "claim_statuses": {
+    "CLM-001": "not-researched"
+  },
+  "evidence_ids": ["VID-001"],
+  "knowledge_phrases": ["[redacted_name]", "[redacted_email]"],
+  "conflict_phrases": ["[redacted_name]", "[redacted_phone]"],
+  "absent_phrases": ["Jane Doe", "jane@example.com", "407-555-1212"],
+  "required_files": ["references/learning-guide.md", "redaction-report.json"],
+  "mode": "learning"
+}

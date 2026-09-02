@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5FF.svg)](LICENSE.md)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-41%20passing-22C55E.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-50%20passing-22C55E.svg)](#verification)
 [![Status](https://img.shields.io/badge/status-early%20development-F59E0B.svg)](#project-status)
 
 </div>
@@ -50,6 +50,10 @@ The deterministic pipeline handles media extraction and provenance. The agent wo
 | Resumable workspaces | Records stage progress in SQLite and continues interrupted analysis without repeating completed work |
 | Scene-aware sampling | Detects RGB scene changes and removes near-duplicate frames before OCR |
 | Visual reinspection | Extracts an exact moment or bounded dense window and promotes it into citable frame evidence |
+| Courses and playlists | Inventories, resumes, and merges multiple videos with explicit coverage |
+| Multi-source provenance | Renumbers evidence globally, combines agreements, and preserves contradictions |
+| Publication redaction | Removes common PII and explicitly named people from generated files by default |
+| Usage modes | Generates operational, learning, hybrid, or reference-oriented skills |
 | OCR | Uses Tesseract to recover visible text from sampled frames |
 | Provenance | Hashes source media and extracted frames with SHA-256 |
 | Claim detection | Identifies material statements that may require verification |
@@ -71,8 +75,10 @@ generated-skill/
 ├── inconsistencies.md
 ├── PREVIEW.md
 ├── generation-report.json
+├── redaction-report.json
 └── references/
-    └── knowledge.md
+    ├── knowledge.md
+    └── learning-guide.md  # learning/hybrid mode
 ```
 
 Only useful, evidence-supported files are created. Empty folders and artificial padding are excluded.
@@ -174,6 +180,26 @@ work/demo/
 
 The agent then follows the repository’s `SKILL.md` workflow to interpret the evidence, ask necessary questions, and create validated `research.json` and `knowledge.json` inputs.
 
+### Analyze a playlist or course
+
+```bash
+video-to-skill course-inventory <playlist-url-or-inventory.json> \
+  --output ./course.json
+
+video-to-skill course-analyze ./course.json \
+  --output ./work/course
+```
+
+Each source receives an isolated resumable workspace. Successful sources are merged into `work/course/merged`; failed or inaccessible sources remain visible in `course-report.json` and in the candidate approval preview.
+
+To merge analyses you already completed:
+
+```bash
+video-to-skill merge ./work/lesson-1 ./work/lesson-2 \
+  --output ./work/combined \
+  --title "Combined course"
+```
+
 ### Resume or inspect progress
 
 ```bash
@@ -210,6 +236,19 @@ video-to-skill generate ./work/demo \
   --knowledge ./knowledge.json
 ```
 
+Select how the generated skill should be used and add names requiring publication redaction:
+
+```bash
+video-to-skill generate ./work/course/merged \
+  --output ./candidates/course-skill \
+  --name course-skill \
+  --description "Teach and apply the course method." \
+  --mode hybrid \
+  --redact-name "Private Name"
+```
+
+Email, phone, government-ID, and explicitly supplied name redaction is enabled by default. Raw analysis evidence is never rewritten. `--no-redact-pii` is available only for deliberately unredacted output.
+
 The input schemas are documented in [`references/input-contracts.md`](references/input-contracts.md). The generated candidate is integrity-hashed and remains blocked from installation.
 
 ### Approve and install
@@ -232,7 +271,7 @@ video-to-skill package ./candidates/demo-skill \
 
 ### Run the evaluation suite
 
-The repository includes three small, synthetic fixtures authored for this project; it contains no third-party video or transcript material. Run them through the actual converter with:
+The repository includes four small, synthetic fixtures authored for this project; it contains no third-party video or transcript material. Run them through the actual converter with:
 
 ```bash
 video-to-skill evaluate \
@@ -240,7 +279,7 @@ video-to-skill evaluate \
   --output eval-report.json
 ```
 
-The suite measures analysis accuracy, generated structure, claim classification, evidence retention, knowledge extraction, conflict reporting, and approval-gate safety. A run fails if its aggregate score is below `0.95` or if any expected behavior is missing.
+The suite measures analysis accuracy, generated structure, claim classification, evidence retention, knowledge extraction, conflict reporting, publication privacy, and approval-gate safety. A run fails if its aggregate score is below `0.95` or if any expected behavior is missing.
 
 ## Approval Preview
 
@@ -308,12 +347,12 @@ Generated skills should synthesize knowledge and use short, necessary evidence e
 
 The current candidate has been verified with:
 
-- 41 automated tests
+- 50 automated tests
 - Ruff static analysis
 - Skill structure validation
 - A real ffmpeg integration test
 - An end-to-end generated-video test covering subtitles, sampled frames, provenance, candidate claims, and the approval lock
-- A three-case synthetic evaluation suite with a 0.95 regression threshold
+- A four-case synthetic evaluation suite with a 0.95 regression threshold, including publication privacy
 - Interrupted-run recovery, RGB scene-cut, deduplication, and bounded reinspection tests
 
 Run the checks locally:
@@ -327,7 +366,7 @@ python3 tools/validate_generated_skill.py ./path/to/generated-skill
 
 ## Project Status
 
-Video to Skill is in early development. Extraction, validated research and knowledge inputs, resumable workspaces, scene-aware visual analysis, bounded reinspection, candidate generation, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will add playlist/course aggregation, multi-video merging, publication redaction, broader multilingual evaluation, and host compatibility testing.
+Video to Skill is in early development. Extraction, validated research and knowledge inputs, resumable workspaces, scene-aware visual analysis, bounded reinspection, playlist/course aggregation, multi-video merging, publication redaction, generated usage modes, conflict reporting, digest-bound approval, verified installation, ZIP packaging, and deterministic end-to-end evaluation are implemented. Future work will deepen semantic cross-video conflict detection, broaden multilingual evaluation, add performance benchmarks, and expand host compatibility testing.
 
 ## Contributing
 

@@ -24,3 +24,15 @@ The command exits unsuccessfully if the overall score is below the manifest thre
 ## Inspect visual evidence more closely
 
 Use `video-to-skill inspect-frame <analysis> <timestamp>` for one ambiguous moment or `video-to-skill inspect-window <analysis> --start <timestamp> --end <timestamp> --fps 2` for a short sequence. Investigation outputs are bounded and added to the normal frame evidence set.
+
+## Analyze a playlist or course
+
+```bash
+video-to-skill course-inventory <playlist-url-or-inventory.json> --output course.json
+video-to-skill course-analyze course.json --output course-work
+video-to-skill generate course-work/merged --output candidate \
+  --name course-skill --description "Use when applying or learning this course." \
+  --mode hybrid --redact-name "Private Name"
+```
+
+Use `course-analyze ... --resume` to retry failed sources without reprocessing completed source workspaces. Generation redacts common PII by default; disabling it requires the explicit `--no-redact-pii` option.

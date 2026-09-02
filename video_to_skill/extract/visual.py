@@ -100,7 +100,12 @@ def deduplicate_frames(records: list[dict], threshold: float = 6.0) -> list[dict
 
 
 def resolve_working_media(analysis: Path, manifest: dict) -> Path:
-    value = Path(manifest["working_media"])
+    working_media = manifest.get("working_media")
+    if not isinstance(working_media, str) or not working_media:
+        raise VideoToSkillError(
+            "Visual reinspection requires an original source analysis, not a merged analysis"
+        )
+    value = Path(working_media)
     media = value if value.is_absolute() else analysis / value
     if not media.is_file():
         raise VideoToSkillError(f"Working media is unavailable: {media}")

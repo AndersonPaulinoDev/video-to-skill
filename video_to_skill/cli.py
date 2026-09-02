@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from .dependencies import capability_report
+from .course import analyze_course, inventory_course, merge_analyses
 from .evals.runner import run_evaluations
 from .exceptions import VideoToSkillError
 from .extract.visual import inspect_frame, inspect_window
@@ -34,6 +35,21 @@ def build_parser() -> argparse.ArgumentParser:
     window.add_argument("--start", required=True)
     window.add_argument("--end", required=True)
     window.add_argument("--fps", type=float, default=2.0)
+    inventory = commands.add_parser("course-inventory", help="Inventory a playlist, course, or source list")
+    inventory.add_argument("source")
+    inventory.add_argument("--output", required=True, type=Path)
+    course = commands.add_parser("course-analyze", help="Analyze and merge every accessible course source")
+    course.add_argument("inventory", type=Path)
+    course.add_argument("--output", required=True, type=Path)
+    course.add_argument("--frame-interval", type=float, default=60.0)
+    course.add_argument("--max-frames", type=int, default=120)
+    course.add_argument("--scene-threshold", type=float, default=0.32)
+    course.add_argument("--dedup-threshold", type=float, default=6.0)
+    course.add_argument("--resume", action="store_true")
+    merge = commands.add_parser("merge", help="Merge complete analyses into one evidence set")
+    merge.add_argument("analyses", nargs="+", type=Path)
+    merge.add_argument("--output", required=True, type=Path)
+    merge.add_argument("--title", default="Merged video sources")
     generate = commands.add_parser("generate", help="Build a complete candidate skill from analyzed evidence")
     generate.add_argument("analysis", type=Path)
     generate.add_argument("--output", required=True, type=Path)
@@ -41,6 +57,12 @@ def build_parser() -> argparse.ArgumentParser:
     generate.add_argument("--description", required=True)
     generate.add_argument("--research", type=Path)
     generate.add_argument("--knowledge", type=Path)
+    generate.add_argument(
+        "--mode", choices=("operational", "learning", "hybrid", "reference"),
+        default="operational",
+    )
+    generate.add_argument("--redact-name", action="append", default=[])
+    generate.add_argument("--no-redact-pii", action="store_true")
     approve = commands.add_parser("approve", help="Record explicit approval for an unchanged candidate")
     approve.add_argument("candidate", type=Path)
     approve.add_argument("--by", required=True)
@@ -78,9 +100,23 @@ def main(argv: list[str] | None = None) -> int:
             result = inspect_frame(args.analysis, args.timestamp)
         elif args.command == "inspect-window":
             result = inspect_window(args.analysis, args.start, args.end, args.fps)
+        elif args.command == "course-inventory":
+            result = inventory_course(args.source, args.output)
+        elif args.command == "course-analyze":
+            if args.frame_interval <= 0 or args.max_frames <= 0 or args.dedup_threshold < 0:
+                raise VideoToSkillError("Frame interval and maximum frame count must be positive")
+            if not 0 < args.scene_threshold < 1:
+                raise VideoToSkillError("Scene threshold must be between 0 and 1")
+            result = analyze_course(
+                args.inventory, args.output, args.resume, args.frame_interval, args.max_frames,
+                args.scene_threshold, args.dedup_threshold,
+            )
+        elif args.command == "merge":
+            result = merge_analyses(args.analyses, args.output, args.title)
         elif args.command == "generate":
             result = generate_candidate(
-                args.analysis, args.output, args.name, args.description, args.research, args.knowledge
+                args.analysis, args.output, args.name, args.description, args.research, args.knowledge,
+                args.mode, not args.no_redact_pii, args.redact_name,
             )
         elif args.command == "approve":
             result = approve_candidate(args.candidate, args.by, args.accept_unresolved)

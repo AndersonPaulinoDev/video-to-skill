@@ -14,7 +14,9 @@ Create topic, procedure, example, transcript, frame, glossary, pattern, and chea
 
 ## Evidence identifiers
 
-Use `VID-###` for video statements, `FRM-###` for visuals/OCR, `USR-###` for user answers, `WEB-###` for researched sources, and `INF-###` for labeled inference. Every material factual instruction must cite evidence resolvable in `sources.md` or the report.
+Use zero-padded identifiers such as `VID-001` for video statements, `FRM-001` for visuals/OCR, `USR-001` for user answers, `WEB-001` for researched sources, and `INF-001` for labeled inference. Identifiers may expand beyond three digits for large courses. Every material factual instruction must cite evidence resolvable in `sources.md` or the report.
+
+Generated candidates include `redaction-report.json`. Learning and hybrid candidates also include `references/learning-guide.md`. Multi-source candidates list `SRC-###` source provenance and course coverage in `sources.md`; incomplete coverage must remain visible in `PREVIEW.md` and `generation-report.json`.
 
 ## Conflict records
 

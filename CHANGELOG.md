@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 - 2026-09-02
+
+- Added public playlist/course inventory and resumable per-source course analysis.
+- Added deterministic multi-analysis merging with globally unique evidence identifiers.
+- Preserved exact agreements as multi-source evidence and retained contradictory claims separately.
+- Added explicit course coverage with failed-source disclosure and approval blocking.
+- Added publication-time email, phone, government-ID, and explicit-name redaction by default.
+- Added operational, learning, hybrid, and reference generated-skill modes.
+- Added a fourth end-to-end privacy evaluation fixture and privacy regression scoring.
+- Removed host-private absolute paths and source errors from generated publication artifacts.
+
 ## 0.4.0 - 2026-09-02
 
 - Added SQLite-backed resumable analysis with six observable processing stages.

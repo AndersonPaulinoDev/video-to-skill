@@ -19,6 +19,14 @@
       "fixture": "fixtures/spanish-procedure",
       "name": "revision-segura",
       "description": "Usar cuando un agente necesite revisar una salida antes de instalarla."
+    },
+    {
+      "id": "privacy-tutorial",
+      "fixture": "fixtures/privacy-tutorial",
+      "name": "privacy-tutorial",
+      "description": "Teach Jane Doe at jane@example.com while protecting publication privacy.",
+      "mode": "learning",
+      "redact_names": ["Jane Doe"]
     }
   ]
 }

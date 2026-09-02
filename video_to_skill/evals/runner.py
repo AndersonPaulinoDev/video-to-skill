@@ -18,16 +18,18 @@ _REQUIRED_FILES = {
     "generation-report.json",
     "inconsistencies.md",
     "references/knowledge.md",
+    "redaction-report.json",
     "sources.md",
 }
 _WEIGHTS = {
-    "analysis": 0.15,
-    "structure": 0.15,
-    "claim_status": 0.15,
-    "evidence": 0.15,
-    "knowledge": 0.15,
-    "conflicts": 0.15,
+    "analysis": 0.14,
+    "structure": 0.14,
+    "claim_status": 0.14,
+    "evidence": 0.14,
+    "knowledge": 0.14,
+    "conflicts": 0.10,
     "approval_gate": 0.10,
+    "privacy": 0.10,
 }
 _CASE_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 _SIZE = re.compile(r"^([1-9][0-9]{1,3})x([1-9][0-9]{1,3})$")
@@ -99,8 +101,9 @@ def _ratio(found: int, expected: int) -> float:
 def _score_case(candidate: Path, preview: dict, expected: dict) -> tuple[dict, list[str]]:
     failures = []
     actual_files = {path.relative_to(candidate).as_posix() for path in candidate.rglob("*") if path.is_file()}
-    missing_files = sorted(_REQUIRED_FILES - actual_files)
-    structure = _ratio(len(_REQUIRED_FILES) - len(missing_files), len(_REQUIRED_FILES))
+    required_files = _REQUIRED_FILES | set(expected.get("required_files", []))
+    missing_files = sorted(required_files - actual_files)
+    structure = _ratio(len(required_files) - len(missing_files), len(required_files))
     if missing_files:
         failures.append(f"missing files: {', '.join(missing_files)}")
 
@@ -165,6 +168,16 @@ def _score_case(candidate: Path, preview: dict, expected: dict) -> tuple[dict, l
     if approval_score != 1:
         failures.append("candidate approval gate was not closed")
 
+    absent_phrases = [str(value).casefold() for value in expected.get("absent_phrases", [])]
+    leaked_phrases = [value for value in absent_phrases if value in combined.casefold()]
+    privacy_score = _ratio(len(absent_phrases) - len(leaked_phrases), len(absent_phrases))
+    expected_mode = expected.get("mode")
+    if expected_mode and report.get("mode") != expected_mode:
+        privacy_score = 0.0
+        failures.append(f"expected generated mode {expected_mode}, got {report.get('mode')}")
+    if leaked_phrases:
+        failures.append("one or more forbidden privacy phrases leaked into the candidate")
+
     metrics = {
         "analysis": analysis_score,
         "structure": structure,
@@ -173,6 +186,7 @@ def _score_case(candidate: Path, preview: dict, expected: dict) -> tuple[dict, l
         "knowledge": knowledge_score,
         "conflicts": conflict_score,
         "approval_gate": approval_score,
+        "privacy": privacy_score,
     }
     score = sum(metrics[name] * _WEIGHTS[name] for name in _WEIGHTS)
     metrics["overall"] = round(score, 6)
@@ -208,6 +222,9 @@ def _run_case(manifest_root: Path, case: dict, workspace: Path) -> dict:
         str(case["description"]),
         fixture / "research.json" if (fixture / "research.json").is_file() else None,
         fixture / "knowledge.json" if (fixture / "knowledge.json").is_file() else None,
+        str(case.get("mode", "operational")),
+        True,
+        [str(value) for value in case.get("redact_names", [])],
     )
     metrics, failures = _score_case(candidate, preview, expected)
     return {

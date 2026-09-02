@@ -100,6 +100,55 @@ def test_complete_generate_approve_install_and_package(tmp_path):
         assert "runtime-guide/SKILL.md" in archive.namelist()
 
 
+def test_learning_mode_redacts_publication_pii_without_changing_analysis(tmp_path):
+    analysis = tmp_path / "analysis"
+    write_analysis(analysis)
+    transcript_path = analysis / "transcript.jsonl"
+    private_text = "Jane Doe always uses jane@example.com or 407-555-1212."
+    transcript_path.write_text(json.dumps({
+        "id": "VID-001", "start": 1, "end": 2, "text": private_text,
+    }) + "\n", encoding="utf-8")
+    claims_path = analysis / "claims.json"
+    claims_path.write_text(json.dumps([{
+        "id": "CLM-001", "text": private_text, "evidence": ["VID-001"],
+        "status": "not-researched",
+    }]), encoding="utf-8")
+    candidate = tmp_path / "candidate"
+
+    report = generate_candidate(
+        analysis, candidate, "private-course", "Teach Jane Doe at jane@example.com.",
+        mode="learning", redact_names=["Jane Doe"],
+    )
+
+    published = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in candidate.rglob("*") if path.is_file() and path.suffix in {".md", ".json"}
+    )
+    assert "Jane Doe" not in published
+    assert "jane@example.com" not in published
+    assert "407-555-1212" not in published
+    assert "[REDACTED_NAME]" in published
+    assert "[REDACTED_EMAIL]" in published
+    assert (candidate / "references/learning-guide.md").is_file()
+    assert report["mode"] == "learning"
+    assert report["redaction"]["total_replacements"] >= 4
+    assert private_text in transcript_path.read_text()
+
+
+def test_pii_redaction_can_be_explicitly_disabled(tmp_path):
+    analysis = tmp_path / "analysis"
+    write_analysis(analysis)
+    candidate = tmp_path / "candidate"
+
+    report = generate_candidate(
+        analysis, candidate, "private-reference", "Contact jane@example.com.",
+        mode="reference", redact_pii=False,
+    )
+
+    assert "jane@example.com" in (candidate / "SKILL.md").read_text()
+    assert report["redaction"]["enabled"] is False
+
+
 def test_unresolved_claim_requires_explicit_acceptance(tmp_path):
     analysis = tmp_path / "analysis"
     write_analysis(analysis)

@@ -22,9 +22,11 @@ Turn video knowledge into an installable skill, not a generic summary.
 
 ### 1. Establish the input and rights
 
-Accept a local video path or a supported public URL. Confirm that the user is permitted to process the material when ownership or access is unclear. Never bypass authentication, DRM, paywalls, platform controls, or access restrictions.
+Accept a local video path, supported public URL, playlist/course URL, or course inventory JSON. Confirm that the user is permitted to process the material when ownership or access is unclear. Never bypass authentication, DRM, paywalls, platform controls, or access restrictions.
 
 For a URL, use the host's authorized retrieval mechanism when available. Otherwise use the bundled CLI only when `yt-dlp` supports the public URL and retrieval complies with the source's terms.
+
+For a playlist or course, inventory it before downloading media, show the expected source count, and preserve inaccessible or failed entries in coverage. Read `references/courses.md` for inventory, analysis, and merge commands.
 
 ### 2. Inspect capabilities
 
@@ -65,7 +67,7 @@ python3 scripts/video_to_skill.py generate <work-directory> \
   --knowledge knowledge.json
 ```
 
-The generator validates evidence identifiers, writes the complete candidate, records inconsistencies, creates `PREVIEW.md`, and hashes the candidate contents. Follow `references/output-contract.md`.
+Choose `--mode operational`, `learning`, `hybrid`, or `reference` to match the user's intended use. Publication-time PII redaction is enabled by default; pass repeated `--redact-name` values for names that must be removed. Use `--no-redact-pii` only after the user explicitly requests unredacted publication output. The generator validates evidence identifiers, writes the complete candidate, records inconsistencies, creates `PREVIEW.md`, and hashes the candidate contents. Follow `references/output-contract.md`.
 
 ### 8. Validate
 
@@ -74,6 +76,8 @@ Run `python3 tools/validate_generated_skill.py <candidate-directory> --stage can
 ### 9. Present the approval preview
 
 Show `PREVIEW.md` plus material conflicts and unresolved items. End with a direct approval question. Never infer approval from earlier authorization to analyze or generate.
+
+For courses, disclose completed versus expected source coverage. Failed or inaccessible sources remain unresolved and require explicit acceptance; never describe a partial course as complete.
 
 ### 10. Install or publish only after approval
 
@@ -103,5 +107,6 @@ Analyze new video evidence separately, compare provenance and conflicts, preview
 - `references/input-contracts.md`: validated research and knowledge JSON schemas
 - `references/output-contract.md`: generated-skill schema
 - `references/workspaces.md`: resume, progress, scene sampling, and bounded reinspection
+- `references/courses.md`: playlist inventory, per-source analysis, merging, coverage, and usage modes
 - `tools/validate_generated_skill.py`: deterministic validator
 - `evals/`: repository-owned synthetic fixtures and measurable regression expectations

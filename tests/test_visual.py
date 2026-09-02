@@ -60,3 +60,16 @@ def test_reinspection_rejects_replaced_media(tmp_path):
         inspect_frame(analysis, "1")
     with pytest.raises(VideoToSkillError, match="source digest"):
         inspect_window(analysis, "0", "2", 1.0)
+
+
+def test_reinspection_rejects_merged_analysis(tmp_path):
+    analysis = tmp_path / "merged"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text(json.dumps({
+        "working_media": None,
+        "probe": {"duration_seconds": 8.0},
+    }), encoding="utf-8")
+    (analysis / "frames.json").write_text("[]", encoding="utf-8")
+
+    with pytest.raises(VideoToSkillError, match="original source analysis"):
+        inspect_frame(analysis, "1")

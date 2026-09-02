@@ -17,7 +17,7 @@ def test_owned_fixture_suite_passes(tmp_path):
 
     assert report["passed"] is True
     assert report["score"] == 1.0
-    assert report["case_count"] == 3
+    assert report["case_count"] == 4
     assert all(case["passed"] for case in report["cases"])
     assert json.loads((tmp_path / "report.json").read_text())["passed"] is True
 

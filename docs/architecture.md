@@ -7,3 +7,7 @@ The evaluation layer generates tiny synthetic MP4 files from repository-owned sp
 The workspace layer records source identity, configuration, stage status, errors, and summaries in SQLite. Completed stages are reused only when the original source and extraction settings match and acquired media passes its digest check. `progress.json` exposes the same stage state without making JSON the recovery authority.
 
 The visual layer analyzes bounded 9×8 RGB thumbnails to detect scene changes, combines those timestamps with periodic coverage, removes near-duplicates, and sends only retained frames to OCR. Agent-directed exact-frame and dense-window requests are capped, hashed, and promoted into the same evidence namespace.
+
+The course layer inventories source sets before acquisition, analyzes each source in an isolated resumable workspace, and merges successful outputs into one evidence namespace. Merge remaps every transcript, frame, OCR, and claim reference; exact duplicate claims collect multiple source identifiers while distinct claims remain separate. Coverage records preserve failures and become approval-gated unresolved items.
+
+The publication layer redacts common PII and user-specified names from generated artifacts without modifying raw analysis evidence. Generated mode changes only the skill's use contract and optional learning guide; it does not weaken provenance, research, conflict, validation, or approval requirements.

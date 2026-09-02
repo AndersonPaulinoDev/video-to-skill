@@ -12,7 +12,7 @@ from video_to_skill.generate.candidate import candidate_digest
 from video_to_skill.lifecycle import verify_approved_candidate
 
 REQUIRED = ("SKILL.md", "sources.md", "claims.md", "inconsistencies.md", "generation-report.json")
-EVIDENCE = re.compile(r"\b(?:VID|FRM|USR|WEB|INF)-\d{3}\b")
+EVIDENCE = re.compile(r"\b(?:VID|FRM|USR|WEB|INF)-\d{3,6}\b")
 
 def validate(root: Path, stage: str = "candidate") -> list[str]:
     errors = []
@@ -28,6 +28,12 @@ def validate(root: Path, stage: str = "candidate") -> list[str]:
             approved = data.get("approval", {}).get("approved")
             state = data.get("state")
             expected_digest = data.get("candidate_digest")
+            if data.get("schema_version", 1) >= 2 and not (root / "redaction-report.json").is_file():
+                errors.append("version 2 candidates require redaction-report.json")
+            if data.get("mode") in {"learning", "hybrid"} and not (
+                root / "references/learning-guide.md"
+            ).is_file():
+                errors.append("learning and hybrid candidates require references/learning-guide.md")
             if not expected_digest or candidate_digest(root) != expected_digest:
                 errors.append("candidate digest does not match current files")
             if stage == "candidate" and (approved is not False or state != "candidate-ready"):

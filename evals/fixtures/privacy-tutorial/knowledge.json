@@ -1,0 +1,13 @@
+{
+  "purpose": "Teach Jane Doe how to protect jane@example.com and 407-555-1212.",
+  "topics": [
+    {
+      "title": "Privacy-safe publication",
+      "summary": "Remove Jane Doe and jane@example.com before publication.",
+      "evidence": ["VID-001"]
+    }
+  ],
+  "procedures": [],
+  "examples": [],
+  "unresolved_questions": []
+}
