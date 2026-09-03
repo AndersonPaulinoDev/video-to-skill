@@ -1,0 +1,89 @@
+name: Real World E2E
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  real-world-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg tesseract-ocr
+
+      - name: Install Video to Skill with real URL and transcription dependencies
+        run: pip install -e '.[all]'
+
+      - name: Report capabilities
+        run: video-to-skill doctor
+
+      - name: Run real public-video analysis with no mocks
+        env:
+          REAL_VIDEO_URL: https://svs.gsfc.nasa.gov/vis/a010000/a014700/a014769/Welcome_Home_Short_v2.mp4
+        run: |
+          video-to-skill analyze "$REAL_VIDEO_URL" \
+            --output real-world-analysis \
+            --frame-interval 20 \
+            --max-frames 20 | tee real-world-analyze-output.json
+
+      - name: Generate candidate from the real analysis
+        run: |
+          video-to-skill generate real-world-analysis \
+            --output real-world-candidate \
+            --name real-world-video-skill \
+            --description "Evidence generated from a real public NASA video." | tee real-world-generate-output.json
+
+      - name: Exercise approval, installation, and packaging
+        env:
+          VIDEO_TO_SKILL_APPROVAL_KEY_FILE: ${{ runner.temp }}/approval.key
+        run: |
+          video-to-skill approve real-world-candidate \
+            --by "GitHub Actions Real World E2E" \
+            --accept-unresolved | tee real-world-approve-output.json
+          video-to-skill install real-world-candidate \
+            --skills-dir real-world-installed | tee real-world-install-output.json
+          video-to-skill package real-world-candidate \
+            --output real-world-video-skill.zip | tee real-world-package-output.json
+
+      - name: Assert evidence from real execution
+        run: |
+          python tools/assert_real_world_e2e.py \
+            real-world-analysis \
+            real-world-candidate \
+            real-world-installed \
+            real-world-video-skill.zip
+
+      - name: Upload inspectable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-world-e2e-evidence
+          if-no-files-found: warn
+          path: |
+            real-world-evidence.json
+            real-world-analyze-output.json
+            real-world-generate-output.json
+            real-world-approve-output.json
+            real-world-install-output.json
+            real-world-package-output.json
+            real-world-analysis/manifest.json
+            real-world-analysis/probe.json
+            real-world-analysis/progress.json
+            real-world-analysis/transcript.jsonl
+            real-world-analysis/frames.json
+            real-world-analysis/ocr.json
+            real-world-analysis/claims.json
+            real-world-analysis/preview.json
+            real-world-candidate/PREVIEW.md
+            real-world-candidate/generation-report.json
+            real-world-candidate/APPROVAL.md
+            real-world-video-skill.zip
